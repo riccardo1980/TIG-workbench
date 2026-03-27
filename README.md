@@ -61,4 +61,4 @@ Then run the same generate command and Terraform will produce one config block p
 1. Use `-generate-config-out` to get the raw config and state imported
 2. Extract `config_json` strings to individual `.json` files
 3. Re-introduce `templatefile()` + the `dashboards` locals map from the refactor we did earlier
-Delete the `import.tf` once applied
+4. Delete the `import.tf` once applied
