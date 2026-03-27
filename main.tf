@@ -23,19 +23,28 @@ resource "grafana_folder" "test_folder" {
 }
 
 locals {
-  live_test_board_raw = jsondecode(file("${path.module}/configs/grafana/boards/live_test_board.json"))
-  live_test_board_str = replace(
-    jsonencode(local.live_test_board_raw), 
-    "$${DS_INFLUXDB_FLUX}",
-    data.grafana_data_source.influxdb_flux.uid
-  )
+  
+  dashboards = {
+    live_test_board = {
+      json_file = "${path.module}/configs/grafana/boards/live_test_board.json"
+      folder    = grafana_folder.test_folder.uid
+      vars = {
+        DS_INFLUXDB_FLUX = data.grafana_data_source.influxdb_flux.uid
+      }
+    }
+  }
+
+  dashboard_configs = {
+    for name, cfg in local.dashboards :
+      name => templatefile(cfg.json_file, cfg.vars)
+  }
 }
 
-# 2. Create a Dashboard with a simple graph
-resource "grafana_dashboard" "live_test_board" {
-  folder = grafana_folder.test_folder.uid
-  config_json = local.live_test_board_str
-
+# 2. Create Dashboards
+resource "grafana_dashboard" "boards" {
+  for_each    = local.dashboard_configs
+  folder      = local.dashboards[each.key].folder
+  config_json = each.value
 }
 
 # # 3. Create a Cloud-style Alert Rule
