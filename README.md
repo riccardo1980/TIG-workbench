@@ -9,6 +9,9 @@ This Repository contains a basic TIG stack for experimenting with Grafana Terraf
 ### OSX install
 ```Bash
 sudo port install terraform colima docker docker-compose-plugin
+
+% optional
+sudo port install tflint
 ```
 
 ## Dashboarding export
@@ -48,7 +51,7 @@ If you have many dashboards, you can combine this with the Grafana provider's da
 data "grafana_dashboards" "all" {}
 
 import {
-  for_each = { for d in data.grafana_dashboards.all.dashboards : d.slug => d.uid }
+  for_each = { for d in data.grafana_dashboards.all.dashboards : replace(lower(d.title), " ", "_") => d.uid }
   to = grafana_dashboard.boards[each.key]
   id = each.value
 }
