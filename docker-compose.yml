@@ -21,7 +21,7 @@ services:
     depends_on:
       - influxdb
     volumes:
-      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - ./configs/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
     environment:
       INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
       INFLUXDB_ORG: ${INFLUXDB_ORG}
@@ -39,7 +39,7 @@ services:
       # Stores dashboards, users, and alert configurations
       - ./data/grafana:/var/lib/grafana
       # Provisions the datasource automatically
-      - ./grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./configs/grafana/grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}

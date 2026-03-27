@@ -53,3 +53,9 @@ output.plan
 # secrets
 #########
 .env
+
+
+#####
+# OSX
+#####
+.DS_Store
