@@ -12,27 +12,30 @@ provider "grafana" {
   auth  = "admin:password123" # Use your Grafana credentials
 }
 
+# 0. Define information concerning alread created resources
+data "grafana_data_source" "influxdb_flux" {
+  name = "InfluxDB_Flux"   # must match the name grafana-datasource.yml
+}
+
 # 1. Create a Folder to organize your test alerts
 resource "grafana_folder" "test_folder" {
   title = "Live Stream Testing"
 }
 
+locals {
+  live_test_board_raw = jsondecode(file("${path.module}/configs/grafana/boards/live_test_board.json"))
+  live_test_board_str = replace(
+    jsonencode(local.live_test_board_raw), 
+    "$${DS_INFLUXDB_FLUX}",
+    data.grafana_data_source.influxdb_flux.uid
+  )
+}
+
 # 2. Create a Dashboard with a simple graph
 resource "grafana_dashboard" "live_test_board" {
   folder = grafana_folder.test_folder.uid
-  
-  config_json = jsonencode({
-    title = "Live Stream Monitor"
-    panels = [{
-      type  = "timeseries"
-      title = "Incoming Sine Wave"
-      gridPos = { h = 8, w = 12, x = 0, y = 0 }
-      targets = [{
-        datasource = { type = "influxdb", uid = "InfluxDB_Flux" }
-        query = "from(bucket: \"test-bucket\") |> range(start: -5m) |> filter(fn: (r) => r._measurement == \"mock\") |> filter(fn: (r) => r._field == \"sine_wave\")"
-      }]
-    }]
-  })
+  config_json = local.live_test_board_str
+
 }
 
 # # 3. Create a Cloud-style Alert Rule
