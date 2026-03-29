@@ -10,13 +10,13 @@ terraform {
 }
 
 provider "grafana" {
-  url   = "http://localhost:3000"
-  auth  = "admin:password123" # Use your Grafana credentials
+  url  = "http://localhost:3000"
+  auth = "admin:password123" # Use your Grafana credentials
 }
 
 # 0. Define information concerning alread created resources
 data "grafana_data_source" "influxdb_flux" {
-  name = "InfluxDB_Flux"   # must match the name grafana-datasource.yml
+  name = "InfluxDB_Flux" # must match the name grafana-datasource.yml
 }
 
 # 1. Create a Folder to organize your test alerts
@@ -25,7 +25,7 @@ resource "grafana_folder" "test_folder" {
 }
 
 locals {
-  
+
   dashboards = {
     live_test_board = {
       json_file = "${path.module}/configs/grafana/boards/live_test_board.json"
@@ -38,7 +38,7 @@ locals {
 
   dashboard_configs = {
     for name, cfg in local.dashboards :
-      name => templatefile(cfg.json_file, cfg.vars)
+    name => templatefile(cfg.json_file, cfg.vars)
   }
 }
 
